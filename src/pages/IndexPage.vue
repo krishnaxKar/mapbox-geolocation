@@ -61,4 +61,9 @@ onUnmounted(()=>{
 .q-input{
     margin-bottom: 15px;
 }
+@media only screen and (max-width: 600px) {
+    h3{
+    font-size: 20px;
+  } 
+}
 </style>
