@@ -1,17 +1,45 @@
 <script setup lang="ts">
-import {onMounted,ref} from "vue"
+import {onMounted,onUnmounted,ref} from "vue"
   import { useMapBoxStore } from "../stores/mapbox"
   const useMapBox = useMapBoxStore()
 
+  let watchID: number;
+  let geoLoc: Geolocation;
+         
+function showLocation(position: { coords: { latitude: number; longitude: number; }; }) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
+    useMapBox.longitude = longitude.toString()
+    useMapBox.latitude = latitude.toString()
+}
+
+function errorHandler(err: { code: number; }) {
+    if(err.code == 1) {
+        alert("Error: Access is denied!");
+    } else if( err.code == 2) {
+        alert("Error: Position is unavailable!");
+    }
+}
+
+function getLocationUpdate(){
+    if(navigator.geolocation){
+        geoLoc = navigator.geolocation;
+        watchID = geoLoc.watchPosition(showLocation, errorHandler, {enableHighAccuracy:true});
+    } else {
+        alert("Sorry, browser does not support geolocation!");
+    }
+}
+
+function stopWatch() {
+    geoLoc.clearWatch(watchID);
+}
+
 onMounted(()=>{
-    navigator.geolocation.getCurrentPosition(position=>{
-        useMapBox.longitude = position.coords.longitude.toString()
-        useMapBox.latitude = position.coords.latitude.toString()
-    },
-    error => console.log(error),
-    {
-        enableHighAccuracy:true
-    })
+    getLocationUpdate()    
+})
+onUnmounted(()=>{
+    stopWatch()
 })
 
 
@@ -19,7 +47,7 @@ onMounted(()=>{
 <template>
     <q-page class="q-pa-lg">
         <div>
-            <h3 class="text-center bg-red text-green q-ma-lg">Track APP Demo (Test)</h3>
+            <h3 class="text-center bg-red text-green q-ma-lg">Track APP (TestDemo)</h3>
         </div>
         <div>
             <q-input v-model="useMapBox.distance" type="number" label="Distance" />

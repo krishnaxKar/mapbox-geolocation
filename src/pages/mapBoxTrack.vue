@@ -7,37 +7,71 @@
   <script setup lang="ts">
   import { onMounted, onUnmounted, reactive, ref } from 'vue';
   import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
-  import {point,polygon,booleanPointInPolygon, circle } from '@turf/turf';
+  import {point,booleanPointInPolygon, circle } from '@turf/turf';
   import { useQuasar } from 'quasar'
   import { useMapBoxStore } from "../stores/mapbox"
+
   const $q = useQuasar()
   const useMapBox = useMapBoxStore()
-    let userLocation:any
-  const coordinates = ref({longitude :0, latitude:0})
+  const coordinates = ref({longitude :useMapBox.getLongitude, latitude:useMapBox.getLatitude})
+  let updateSource: string | number | NodeJS.Timeout | undefined
+/*********************** */
+  let watchID: number;
+  let geoLoc: Geolocation;
+         
+function showLocation(position:{ coords: { latitude: number; longitude: number; }; }) {
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    coordinates.value = {longitude:longitude, latitude:latitude}
+}
+
+function errorHandler(err: { code: number; }) {
+    if(err.code == 1) {
+        alert("Error: Access is denied!");
+    } else if( err.code == 2) {
+        alert("Error: Position is unavailable!");
+    }
+}
+
+function getLocationUpdate(){
+    if(navigator.geolocation){
+        // timeout at 60000 milliseconds (60 seconds)
+        const options = {timeout:60000};
+        geoLoc = navigator.geolocation;
+        watchID = geoLoc.watchPosition(showLocation, errorHandler, options);
+    } else {
+        alert("Sorry, browser does not support geolocation!");
+    }
+}
+
+function stopWatch() {
+    console.log("b watchID",watchID);
+    
+    geoLoc.clearWatch(watchID);
+    console.log("a watchID",watchID);
+
+}
+
+
+
+/*********************** */
+
+
+
+
+  
+
   onMounted(()=>{
-  
-    userLocation = navigator.geolocation.watchPosition(data=>{
-          console.log(data)
-          // coordinates.value.push({longitude:data.coords.longitude, latitude:data.coords.latitude})
-          coordinates.value = {longitude:data.coords.longitude, latitude:data.coords.latitude}
-      },
-      error => console.log(error),
-      {
-          enableHighAccuracy:true
-      })
+    getLocationUpdate()
 
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2lsZXNheDIiLCJhIjoiY2xoM24wbzF2MXA5YjNpcXY5b2p2MmVseCJ9.J-UUUve8dPVjeGGFBnaASQ';
 
-      mapboxgl.accessToken = 'pk.eyJ1Ijoic2lsZXNheDIiLCJhIjoiY2xoM24wbzF2MXA5YjNpcXY5b2p2MmVseCJ9.J-UUUve8dPVjeGGFBnaASQ';
-   
-      const map = new mapboxgl.Map({
-      container: 'mapping',
-      style: 'mapbox://styles/mapbox/streets-v12', // style URL
-          center:[ coordinates.value.longitude,coordinates.value.latitude], // starting position [lng, lat]
-          zoom: 15, // starting zoom
-      });
-  
-  
-  
+    const map = new mapboxgl.Map({
+    container: 'mapping',
+    style: 'mapbox://styles/mapbox/streets-v12', // style URL
+        center:[ coordinates.value.longitude,coordinates.value.latitude], // starting position [lng, lat]
+        zoom: 16, // starting zoom
+    });
   
   // map.on('click', (e) => {
   //   // Get the marker's coordinates
@@ -67,9 +101,6 @@
   // };
   
   // Add the circle to your Mapbox map as a new data source and layer
-  
-  
-    
   let geojsonFence = circle([useMapBox.getLongitude,useMapBox.getLatitude], useMapBox.getDistance, {steps: 64, units: 'meters'})
   map.on('load', function() {
   
@@ -116,10 +147,10 @@
   });
   
   // Update the source from the API every 2 seconds.
-  const updateSource = setInterval(async () => {
+  updateSource = setInterval(async () => {
   const geojson = await getLocation(updateSource);
   map.getSource('iss').setData(geojson);
-  }, 8000);
+  }, 5000);
   
   async function getLocation(updateSource?:any) {
   // Make a GET request to the API and return the location of the ISS.
@@ -127,27 +158,23 @@
   
   const { latitude, longitude } = coordinates.value
   //console.log(`latitude : ${latitude}, longitude: ${longitude}`);
-  // Fly the map to the location.
-  map.flyTo({
-      center: [longitude, latitude],
-  });
-  
+    // Fly the map to the location.
+    map.flyTo({
+        center: [longitude, latitude],
+    });
+    
   //   polygon(geoFence.features[0].geometry.coordinates)
   
-    const isInside = ref(booleanPointInPolygon(
-    point([longitude,latitude]),
-    //polygon
-    geojsonFence  ));
-       // Trigger a notification if the user is outside the geofence
-       if (!isInside.value) {
-  
-          $q.notify({
-            type: 'negative',
-            message: `Alert, You're out of the safe zone!\nLongitude: + ${longitude}, latitude : ${latitude}`,
-            actions: [
-              { label: 'Dismiss', color: 'white', handler: () => { /* ... */ } }
-            ]
-          })
+    useMapBox.isInside = booleanPointInPolygon(
+    point([longitude,latitude]), /*polygon*/ geojsonFence  );
+    // Trigger a notification if the user is outside the geofence
+    if (!useMapBox.getIsInside) {        
+        console.log(`Alert, You're out of the safe zone!\nLongitude: ${longitude}, latitude : ${latitude}`);
+        $q.notify({
+        type: 'negative',
+        message: `Alert, You're out of the safe zone!\nLongitude: ${longitude}, latitude : ${latitude}`,
+        actions: [{ label: 'Dismiss', color: 'white', handler: () => { /* ... */ } }]
+        })
     }
     // else{
     //   console.log('isInside Longitude: ' + longitude);
@@ -177,10 +204,16 @@
       }
   }
   });
+
   })
-  onUnmounted(()=>{
-    window.navigator.geolocation.clearWatch(userLocation)
-  })
+
+
+onUnmounted( ()=>{
+    stopWatch()
+    useMapBox.isInside = true
+    clearInterval(updateSource);
+})
+
   </script>
   
   <style scoped>
