@@ -50,7 +50,7 @@ onUnmounted(()=>{
             <h3 class="bg-red text-green q-my-lg flex items-center justify-center" style="height: 80px;">Track APP (TestDemo)</h3>
         </div>
         <div>
-            <q-input v-model="useMapBox.distance" type="number" label="Distance" />
+            <q-input v-model="useMapBox.distance" type="number" label="Distance (meters)" />
             <q-input v-model="useMapBox.longitude" type="number" label="Longitude" />
             <q-input v-model="useMapBox.latitude" type="number" label="Latitude" />
             <q-btn outline color="primary" class="full-width" label="Track" :to="{name:'mapboxtrack'}" />
