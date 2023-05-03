@@ -19,7 +19,7 @@ onMounted(()=>{
 <template>
     <q-page class="q-pa-lg">
         <div>
-            <h3 class="text-center bg-red text-green q-ma-lg">TEST APP</h3>
+            <h3 class="text-center bg-red text-green q-ma-lg">Track APP Demo (Test)</h3>
         </div>
         <div>
             <q-input v-model="useMapBox.distance" type="number" label="Distance" />
