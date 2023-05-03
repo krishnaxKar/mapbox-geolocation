@@ -25,4 +25,6 @@ export const useMapBoxStore = defineStore ('track',()=> {
     getDistance, getLongitude,getLatitude,getIsInside
   }
   //persist:true
-});
+},
+{persist:true}
+);
