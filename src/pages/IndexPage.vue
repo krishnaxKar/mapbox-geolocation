@@ -4,24 +4,14 @@ import {onMounted,ref} from "vue"
   const useMapBox = useMapBoxStore()
 
 onMounted(()=>{
-
-    // if (useMapBox.baseLocation.longitude==="0" || useMapBox.baseLocation.longitude==="0") {
-        
-
-    // }
-
-        navigator.geolocation.getCurrentPosition(position=>{
-            useMapBox.longitude = position.coords.longitude.toString()
-            useMapBox.latitude = position.coords.latitude.toString()
-        },
-        error => console.log(error),
-        {
-            enableHighAccuracy:true
-        })
-
-
-
-
+    navigator.geolocation.getCurrentPosition(position=>{
+        useMapBox.longitude = position.coords.longitude.toString()
+        useMapBox.latitude = position.coords.latitude.toString()
+    },
+    error => console.log(error),
+    {
+        enableHighAccuracy:true
+    })
 })
 
 

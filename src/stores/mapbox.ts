@@ -6,8 +6,8 @@ interface BaseLocation{
 export const useMapBoxStore = defineStore ('track',()=> {
   // state: () => ({
   const  distance = ref("10")
-  const  longitude = ref()
-  const  latitude = ref()
+  const  longitude = ref("0")
+  const  latitude = ref("0")
 
   // getters: {
   // const  getDistance = computed(()=>distance.value)

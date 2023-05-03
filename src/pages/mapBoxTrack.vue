@@ -3,20 +3,20 @@
         <div id='mapping' style='width: 100%; height: 100vh;'></div>
     </q-page>
   </template>
-  
+   
   <script setup lang="ts">
-  import { onMounted, reactive, ref } from 'vue';
+  import { onMounted, onUnmounted, reactive, ref } from 'vue';
   import mapboxgl from 'mapbox-gl/dist/mapbox-gl.js';
   import {point,polygon,booleanPointInPolygon, circle } from '@turf/turf';
   import { useQuasar } from 'quasar'
   import { useMapBoxStore } from "../stores/mapbox"
   const $q = useQuasar()
   const useMapBox = useMapBoxStore()
- 
+    let userLocation:any
   const coordinates = ref({longitude :0, latitude:0})
   onMounted(()=>{
   
-      navigator.geolocation.watchPosition(data=>{
+    userLocation = navigator.geolocation.watchPosition(data=>{
           console.log(data)
           // coordinates.value.push({longitude:data.coords.longitude, latitude:data.coords.latitude})
           coordinates.value = {longitude:data.coords.longitude, latitude:data.coords.latitude}
@@ -25,6 +25,8 @@
       {
           enableHighAccuracy:true
       })
+
+
       mapboxgl.accessToken = 'pk.eyJ1Ijoic2lsZXNheDIiLCJhIjoiY2xoM24wbzF2MXA5YjNpcXY5b2p2MmVseCJ9.J-UUUve8dPVjeGGFBnaASQ';
    
       const map = new mapboxgl.Map({
@@ -77,8 +79,8 @@
     });
     map.on("click",(e:any)=>{
       const { lng, lat } = e.lngLat;
-      useMapBox.longitude.longitude = lng
-      useMapBox.latitude.latitude =lat
+      useMapBox.longitude = lng
+      useMapBox.latitude =lat
 
       geojsonFence = circle([useMapBox.getLongitude,useMapBox.getLatitude], useMapBox.getDistance, {steps: 64, units: 'meters'})
       map.getSource('geofence').setData( geojsonFence);
@@ -175,6 +177,9 @@
       }
   }
   });
+  })
+  onUnmounted(()=>{
+    window.navigator.geolocation.clearWatch(userLocation)
   })
   </script>
   
