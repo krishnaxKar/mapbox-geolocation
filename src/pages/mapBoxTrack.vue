@@ -146,7 +146,7 @@ function stopWatch() {
   updateSource = setInterval(async () => {
   const geojson = await getLocation(updateSource);
   map.getSource('iss').setData(geojson);
-  }, 5000);
+  }, 1500);
   
   async function getLocation(updateSource?:any) {
   // Make a GET request to the API and return the location of the ISS.
