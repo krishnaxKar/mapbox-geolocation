@@ -47,13 +47,18 @@ onUnmounted(()=>{
 <template>
     <q-page class="q-pa-lg">
         <div>
-            <h3 class="text-center bg-red text-green q-ma-lg">Track APP (TestDemo)</h3>
+            <h3 class="bg-red text-green q-my-lg flex items-center justify-center" style="height: 80px;">Track APP (TestDemo)</h3>
         </div>
         <div>
             <q-input v-model="useMapBox.distance" type="number" label="Distance" />
-            <q-input v-model="useMapBox.longitude"  type="number" label="Longitude" />
-            <q-input v-model="useMapBox.latitude"  type="number" label="Latitude" />
-            <q-btn outline color="primary" label="Track" :to="{name:'mapboxtrack'}" />
+            <q-input v-model="useMapBox.longitude" type="number" label="Longitude" />
+            <q-input v-model="useMapBox.latitude" type="number" label="Latitude" />
+            <q-btn outline color="primary" class="full-width" label="Track" :to="{name:'mapboxtrack'}" />
         </div>
     </q-page>
   </template>
+<style scoped>
+.q-input{
+    margin-bottom: 15px;
+}
+</style>

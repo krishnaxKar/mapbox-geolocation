@@ -45,11 +45,7 @@ function getLocationUpdate(){
 }
 
 function stopWatch() {
-    console.log("b watchID",watchID);
-    
     geoLoc.clearWatch(watchID);
-    console.log("a watchID",watchID);
-
 }
 
 
@@ -210,7 +206,6 @@ function stopWatch() {
 
 onUnmounted( ()=>{
     stopWatch()
-    useMapBox.isInside = true
     clearInterval(updateSource);
 })
 

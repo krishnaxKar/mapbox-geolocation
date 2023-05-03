@@ -1,71 +1,26 @@
 <template>
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
+      <q-toolbar >
         <q-toolbar-title>
-          MrHaM App
+          <div class="text-center ">MrHaM App</div>
         </q-toolbar-title>
+        <q-btn color="white" icon="my_location" flat label="Select safZone" :to="{path:'/'}" />
 
       </q-toolbar>
     </q-header>
-
-    <q-drawer
-      v-model="leftDrawerOpen"
-      show-if
-      bordered
-    >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view  />
     </q-page-container>
   </q-layout>
 </template>
+<style scoped>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import EssentialLink, { EssentialLinkProps } from 'components/EssentialLink.vue';
-
-const essentialLinks: EssentialLinkProps[] = [
-{
-    title: 'Home',
-    caption: 'Select the safeZone',
-    icon: 'code',
-    link: '/'
-  },
-  {
-    title: 'Check',
-    caption: 'Battery',
-    icon: 'chat',
-    link: '/battery'
-  }
-];
-
-const leftDrawerOpen = ref(false)
-
-function toggleLeftDrawer() {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+  @media only screen and (max-width: 600px) {
+  .q-btn{
+    font-size: 10px;
+  } 
 }
-</script>
+
+</style>
